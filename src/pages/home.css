@@ -86,7 +86,7 @@
     background-color: #0071c5;
   }
   
-  /* Hide the default input element */
+
   #file-upload {
     display: none;
   }
@@ -411,7 +411,7 @@
       transform: rotate(360deg);
     }
   }
-/////////////////////////
+
 
 .itemset-table {
     width: 45%;
@@ -474,7 +474,7 @@
   }
 
 
-  ///////////////////////popup rulles///////////
+
   .Home  .rules-popup-container {
     position: fixed;
     top: 0;
