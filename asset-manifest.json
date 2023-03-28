@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/data_wizard/static/css/main.e64acb74.css",
+    "main.js": "/data_wizard/static/js/main.4391194d.js",
+    "index.html": "/data_wizard/index.html",
+    "main.e64acb74.css.map": "/data_wizard/static/css/main.e64acb74.css.map",
+    "main.4391194d.js.map": "/data_wizard/static/js/main.4391194d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e64acb74.css",
+    "static/js/main.4391194d.js"
+  ]
+}
