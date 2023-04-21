@@ -1,2 +1,2 @@
-export const SERVER_KEY = 'http://127.0.0.1:5000';
+export const SERVER_KEY = 'https://masymar.com';
 export const SECRET_KEY = 'your_secret_key';
