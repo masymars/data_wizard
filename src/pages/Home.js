@@ -9,12 +9,14 @@ function Home() {
     const [autoOption, setAutoOption] = useState('manual');
     const [threshold, setThreshold] = useState(0.5);
     const [showPriorityPopup, setShowPriorityPopup] = useState(false);
-    const [priorities, setPriorities] = useState([]);
+    const [priorities, setPriorities] = useState([0.5]);
     const [numOfItems, setNumOfItems] = useState(0);
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [returnedData, setReturnedData] = useState([]);
     const [showGetRules, setShowGetRules] = useState(false);
+
+    const [isClose, setisClose] = useState(false);
     const [showRulesPopup, setShowRulesPopup] = useState(false);
     const [confidence, setConfidence] = useState(0.5);
     const [rulesData, setRulesData] = useState([]);
@@ -34,9 +36,10 @@ function Home() {
       reader.readAsText(file);
     };
   
-
+///////algorime appriori////////////
     const onFileUpload = async () => {
         setLoading(true);
+        setisClose(false);
         const formData = new FormData();
         formData.append('file', file);
         formData.append("minsup", threshold); // Send minsup value
@@ -59,6 +62,63 @@ function Home() {
 
         setLoading(false);
       };
+
+      //////close algorithme //////
+      const onFileUpload2 = async () => {
+        setisClose(true);
+        setLoading(true);
+        setConfidence(1)
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append("minsup", threshold); // Send minsup value
+
+        const response = await fetch(SERVER_KEY+'/upload2', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setReturnedData(data);
+            setShowGetRules(true);
+          
+          
+        } else {
+          alert('Error uploading file');
+        }
+
+        setLoading(false);
+      };
+
+      ///////////map reduse////////
+
+      const onFileUpload3 = async () => {
+        setisClose(false);
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append("minsup", threshold); // Send minsup value
+
+        const response = await fetch(SERVER_KEY+'/upload3', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setReturnedData(data);
+            setShowGetRules(true);
+          
+          
+        } else {
+          alert('Error uploading file');
+        }
+
+        setLoading(false);
+      };
+
     const handleAutoOptionChange = (e) => {
       setAutoOption(e.target.value);
     };
@@ -74,7 +134,7 @@ function Home() {
   
     const handlePriorityChange = (event, index) => {
       const newPriorities = [...priorities];
-      newPriorities[index] = parseInt(event.target.value);
+      newPriorities[index] = parseFloat(event.target.value);
       setPriorities(newPriorities);
     };
   
@@ -119,14 +179,14 @@ const handleSendButtonClick = async() => {
   console.log("Sending data to flex server...");
 
 }else {
-    alert("Please ensure all priority values are unique and greater than 0.");
+    alert("priority values Error");
   }
 };
 
 const isValidInput = () => {
-    const uniquePriorities = new Set(priorities.filter(priority => priority > 0));
-    return uniquePriorities.size === priorities.length && uniquePriorities.size === headers.length;
-  };
+  const sumPriorities = priorities.reduce((acc, priority) => acc + priority, 0);
+  return sumPriorities === 1;
+};
 const renderPriorityChooser = () => {
     
   
@@ -156,8 +216,9 @@ const renderPriorityChooser = () => {
                   <input
                     className={`threshold-input ${isDuplicatePriority(index) ? 'duplicate-priority' : ''}`}
                     type="number"
-                    min={1}
-                    max={headers.length}
+                    min={0}
+                    max={1}
+                    step={0.01}
                     value={priorities[index]}
                     onChange={(event) => handlePriorityChange(event, index)}
                   />
@@ -177,7 +238,7 @@ const renderPriorityChooser = () => {
 
 
     const handleNumOfItemsChange = (e) => {
-      setNumOfItems(parseInt(e.target.value));
+      setNumOfItems(parseFloat(e.target.value));
     };
     
     const predictMinSupport = async () => {
@@ -261,6 +322,7 @@ const renderPriorityChooser = () => {
                 <tr>
                   <th>Itemset</th>
                   <th>Support</th>
+                  {isClose && (<th>Closer</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -268,6 +330,7 @@ const renderPriorityChooser = () => {
                   <tr key={index}>
                     <td>{row.itemset.join(", ")}</td>
                     <td>{row.support.toFixed(4)}</td>
+                    {isClose && (<td>{row.closer.join(", ")}</td>)}
                   </tr>
                 ))}
               </tbody>
@@ -295,7 +358,6 @@ const renderPriorityChooser = () => {
             <tr>
               <th>Antecedents</th>
               <th>Consequents</th>
-              <th>Support</th>
               <th>Confidence</th>
               <th>Lift</th>
               <th>Leverage</th>
@@ -307,7 +369,6 @@ const renderPriorityChooser = () => {
               <tr key={index}>
                 <td>{rule.antecedents.join(', ')}</td>
                 <td>{rule.consequents.join(', ')}</td>
-                <td>{rule.support}</td>
                 <td>{rule.confidence}</td>
                 <td>{rule.lift}</td>
                 <td>{rule.leverage}</td>
@@ -424,8 +485,23 @@ const renderPriorityChooser = () => {
   {file && ( 
   <button className="upload-btn" onClick={onFileUpload}>
           Appriori 
-        </button>)}
+        </button>
+        
+        )}
+ {file && ( 
+  <button className="upload-btn" onClick={onFileUpload2}>
+          Close 
+        </button>
+        
+        )}
 
+
+{file && ( 
+  <button className="upload-btn" onClick={onFileUpload3}>
+          Map_reduce 
+        </button>
+        
+        )}
 
   <div className='options options-row'>
               <div  className="options-select">
